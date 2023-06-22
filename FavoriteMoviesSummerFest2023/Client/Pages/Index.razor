@@ -1,0 +1,19 @@
+﻿@page "/"
+
+<PageTitle>Index</PageTitle>
+
+@if (MovieDetails?.Any() ?? false)
+{
+    <h2>Favorite Movies</h2>
+    <ul>
+    @foreach (var movie in MovieDetails)
+    {
+     <li>@movie.Title (@movie.Year) <br />@movie.Actors.Replace(",", " | ")<br />
+                <img src=@($"http://img.omdbapi.com/?apikey={OMDBAPIKey}&i={movie.imdbID}") height="200" />
+            </li>
+    }
+    </ul>
+} else
+{
+    <h2>Please log in.</h2>
+}
