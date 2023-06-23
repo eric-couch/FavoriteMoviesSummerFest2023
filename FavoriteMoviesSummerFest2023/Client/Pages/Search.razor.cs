@@ -13,20 +13,30 @@ public partial class Search
     private string SearchTitle = String.Empty;
     private List<MovieSearchResultItems> MovieSearchResults { get; set; } = new();
     IQueryable<MovieSearchResultItems>? movies { get; set; } = null;
+    private int pageNum = 1;
+    private int totalPages = 2;
+    private int totalResults = 0;
     private async Task SearchOMDB()
     {
-        try
+        await GetMovies();
+        StateHasChanged();
+    }
+
+    private async Task NextPage()
+    {
+        if (pageNum < totalPages)
         {
-            MovieSearchResult? searchResults = await Http.GetFromJsonAsync<MovieSearchResult>($"{OMDBAPIUrl}{OMDBAPIKey}&s={SearchTitle}");
-            if (searchResults is not null)
-            {
-                movies = searchResults.Search.AsQueryable();
-                // need to do something for pagination
-            }
+            pageNum++;
+            await GetMovies();
         }
-        catch
+    }
+
+    private async Task PreviousPage()
+    {
+        if (pageNum > 1)
         {
-            Console.WriteLine("An error occured.");
+            pageNum--;
+            await GetMovies();
         }
     }
 
@@ -40,6 +50,31 @@ public partial class Search
         } else
         {
             Console.WriteLine("Post to add user movie favorite was successful");
+        }
+    }
+
+    private async Task GetMovies()
+    {
+        try
+        {
+            MovieSearchResult? searchResults = await Http.GetFromJsonAsync<MovieSearchResult>($"{OMDBAPIUrl}{OMDBAPIKey}&s={SearchTitle}&page={pageNum}");
+            if (searchResults is not null)
+            {
+                movies = searchResults.Search.AsQueryable();
+                if (Double.TryParse(searchResults.totalResults, out double total))
+                {
+                    totalResults = (int)total;
+                    totalPages = (int)Math.Ceiling(total / 10);
+                }
+                else
+                {
+                    totalPages = 1;
+                }
+            }
+        }
+        catch
+        {
+            Console.WriteLine("An error occured.");
         }
     }
 }
