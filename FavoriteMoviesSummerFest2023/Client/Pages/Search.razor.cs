@@ -29,4 +29,17 @@ public partial class Search
             Console.WriteLine("An error occured.");
         }
     }
+
+    private async void AddMovie(MovieSearchResultItems m)
+    {
+        Movie newMovie = new() { imdbId = m.imdbID };
+        var res = await Http.PostAsJsonAsync("api/add-movie", newMovie);
+        if (!res.IsSuccessStatusCode)
+        {
+            Console.WriteLine("Post to add user movie favorite failed (api/add-movie)");
+        } else
+        {
+            Console.WriteLine("Post to add user movie favorite was successful");
+        }
+    }
 }

@@ -39,6 +39,19 @@ public class UserController : Controller
         return Ok(movies);
     }
 
+    [HttpPost("api/add-movie")]
+    public async Task<ActionResult> AddMovie([FromBody] Movie movie)
+    {
+        var user = await _userManager.FindByNameAsync(User.Identity.Name);
+        if (user is  null) {
+            return NotFound();
+        }
+        user.FavoriteMovies.Add(movie);
+        await _userManager.UpdateAsync(user);
+
+        return Ok();
+    }
+
     public IActionResult Index()
     {
         return View();

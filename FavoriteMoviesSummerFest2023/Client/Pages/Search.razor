@@ -10,6 +10,9 @@
     <QuickGrid Items="@movies">
         <PropertyColumn Property="@(m => m.Title)" />
         <PropertyColumn Property="@(m => m.Year)" />
+        <TemplateColumn Title="Add Movie to Favorites">
+            <button @onclick="@(() => AddMovie(context))">Add Movie</button>
+        </TemplateColumn>
     </QuickGrid>
 }
 
