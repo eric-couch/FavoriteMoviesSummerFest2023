@@ -1,0 +1,15 @@
+﻿@page "/search"
+@using Microsoft.AspNetCore.Components.QuickGrid;
+
+<label>Search</label>
+<InputText @bind-Value="SearchTitle" />
+<button @onclick="SearchOMDB">Search</button>
+
+@if (movies is not null)
+{
+    <QuickGrid Items="@movies">
+        <PropertyColumn Property="@(m => m.Title)" />
+        <PropertyColumn Property="@(m => m.Year)" />
+    </QuickGrid>
+}
+

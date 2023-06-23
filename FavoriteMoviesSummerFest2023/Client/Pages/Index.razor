@@ -2,18 +2,34 @@
 
 <PageTitle>Index</PageTitle>
 
-@if (MovieDetails?.Any() ?? false)
-{
-    <h2>Favorite Movies</h2>
-    <ul>
-    @foreach (var movie in MovieDetails)
-    {
-     <li>@movie.Title (@movie.Year) <br />@movie.Actors.Replace(",", " | ")<br />
-                <img src=@($"http://img.omdbapi.com/?apikey={OMDBAPIKey}&i={movie.imdbID}") height="200" />
-            </li>
-    }
-    </ul>
-} else
-{
-    <h2>Please log in.</h2>
-}
+<AuthorizeView>
+    <Authorized>
+        @if (IsLoading)
+        {
+            <h2>Loading...</h2>
+        }
+        else
+        {
+            <p>Hello, @context.User.Identity.Name</p>
+            @if (MovieDetails?.Any() ?? false)
+            {
+                <h2>Favorite Movies</h2>
+                <ul>
+                    @foreach (var movie in MovieDetails)
+                    {
+                        <MovieDetails Movie="movie" />
+                    }
+                </ul>
+            }
+            else
+            {
+                <h2>You have no favorite movies saved.</h2>
+            }
+        }
+    </Authorized>
+    <NotAuthorized>
+        <p>You haven't logged in, please login to view your favorite movies list</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+

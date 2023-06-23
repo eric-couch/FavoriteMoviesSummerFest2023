@@ -1,0 +1,8 @@
+﻿@if (Movie is not null)
+{
+    <li>
+        @Movie.Title (@Movie.Year) <br />@Movie.Actors.Replace(",", " | ")<br />
+        <img src=@($"{OMDBAPIPosterURL}{OMDBAPIKey}&i={Movie.imdbID}") height="200" />
+    </li>
+}
+
