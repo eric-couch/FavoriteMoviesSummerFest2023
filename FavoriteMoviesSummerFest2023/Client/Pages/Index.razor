@@ -17,7 +17,7 @@
                 <ul>
                     @foreach (var movie in MovieDetails)
                     {
-                        <MovieDetails Movie="movie" />
+                        <MovieDetails Movie="movie" OnRemoveFavoriteMovie="RemoveFavoriteMovie" />
                     }
                 </ul>
             }

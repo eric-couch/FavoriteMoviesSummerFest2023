@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using FavoriteMoviesSummerFest2023.Shared;
 using System.Net.Http.Json;
+using Microsoft.JSInterop;
 
 namespace FavoriteMoviesSummerFest2023.Client.Pages;
 
@@ -8,6 +9,8 @@ public partial class Search
 {
     [Inject]
     public HttpClient Http { get; set; } = new()!;
+    [Inject]
+    public IJSRuntime JS { get; set; }
     private readonly string OMDBAPIUrl = "https://www.omdbapi.com/?apikey=";
     private readonly string OMDBAPIKey = "86c39163";
     private string SearchTitle = String.Empty;
@@ -46,10 +49,10 @@ public partial class Search
         var res = await Http.PostAsJsonAsync("api/add-movie", newMovie);
         if (!res.IsSuccessStatusCode)
         {
-            Console.WriteLine("Post to add user movie favorite failed (api/add-movie)");
+            await JS.InvokeVoidAsync("userFeedback", "Post to add user movie favorite failed (api/add-movie)");
         } else
         {
-            Console.WriteLine("Post to add user movie favorite was successful");
+            await JS.InvokeVoidAsync("userFeedback", $"Added {m.Title} to user favorites!");
         }
     }
 

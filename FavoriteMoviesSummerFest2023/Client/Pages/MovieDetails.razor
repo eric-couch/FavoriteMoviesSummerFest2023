@@ -3,6 +3,7 @@
     <li>
         @Movie.Title (@Movie.Year) <br />@Movie.Actors.Replace(",", " | ")<br />
         <img src=@($"{OMDBAPIPosterURL}{OMDBAPIKey}&i={Movie.imdbID}") height="200" />
+        <button class="btn btn-primary" @onclick="@(() => RemoveFavoriteMovie(@Movie))">Remove</button>
     </li>
 }
 

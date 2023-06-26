@@ -52,6 +52,30 @@ public class UserController : Controller
         return Ok();
     }
 
+    [HttpPost("api/remove-movie")]
+    public async Task<ActionResult> RemoveMovie([FromBody] string imdbId)
+    {
+        var user = await _userManager.FindByNameAsync(User.Identity.Name);
+        if (user is null)
+        {
+            return NotFound();
+        }
+        //var movie = user.FavoriteMovies.FirstOrDefault(m => m.imdbId == imdbId);
+        var movie = _context.Users.Include(u => u.FavoriteMovies)
+                    .FirstOrDefault(u => u.Id == user.Id)?.FavoriteMovies
+                    .FirstOrDefault(m => m.imdbId == imdbId);
+        if (movie is null)
+        {
+            return NotFound();
+        }
+        _context.Movies.Remove(movie);
+        await _context.SaveChangesAsync();
+        //user.FavoriteMovies.Remove(movie);
+        //await _userManager.UpdateAsync(user);
+
+        return Ok();
+    }
+
     public IActionResult Index()
     {
         return View();
