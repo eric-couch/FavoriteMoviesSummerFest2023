@@ -125,7 +125,8 @@ public class Tests
         client.BaseAddress = new Uri("http://localhost:7139/");
         var userHttpRepository = new UserHttpRepository(client);
 
-        var response = await userHttpRepository.GetMovies();
+        var dataResponse = await userHttpRepository.GetMovies();
+        var response = dataResponse.Data;
 
         Assert.That(response.Count(), Is.EqualTo(2));
         Assert.That(response[0].Title, Is.EqualTo("The Prestige"));

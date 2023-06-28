@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using FavoriteMoviesSummerFest2023.Shared;
+using FavoriteMoviesSummerFest2023.Shared.Wrapper;
 using System.Net.Http.Json;
 using Microsoft.JSInterop;
 using FavoriteMoviesSummerFest2023.Client.HttpRepository;
@@ -18,18 +19,25 @@ public partial class Index
     [Inject]
     public IUserHttpRepository UserHttpRepository { get; set; }
     
-    private readonly string OMDBAPIUrl = "https://www.omdbapi.com/?apikey=";
-    private readonly string OMDBAPIKey = "86c39163";
     public UserDto? User { get; set; }
     public List<OMDBMovie> MovieDetails { get; set; } = new List<OMDBMovie>();
     public bool IsLoading { get; set; } = true;
+    public List<string> roles { get; set; } = new List<string>();
     protected override async Task OnInitializedAsync()
     {
         try {
             var UserAuth = (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User.Identity;
             if (UserAuth is not null && UserAuth.IsAuthenticated)
             {
-                MovieDetails = await UserHttpRepository.GetMovies();
+                DataResponse<List<OMDBMovie>> dataResponse = await UserHttpRepository.GetMovies();
+                if (dataResponse.Succeeded)
+                {
+                    MovieDetails = dataResponse.Data;
+                }
+                else
+                {
+                    await JS.InvokeVoidAsync(dataResponse.Message, dataResponse.Message);
+                }
                 IsLoading = false;
             }
         } catch

@@ -2,6 +2,9 @@
 using FavoriteMoviesSummerFest2023.Shared;
 using System.Net.Http.Json;
 using Microsoft.JSInterop;
+using Syncfusion.Blazor.Navigations;
+using Syncfusion.Blazor.Grids;
+using Syncfusion.Blazor.Notifications;
 
 namespace FavoriteMoviesSummerFest2023.Client.Pages;
 
@@ -15,7 +18,13 @@ public partial class Search
     private readonly string OMDBAPIKey = "86c39163";
     private string SearchTitle = String.Empty;
     private List<MovieSearchResultItems> MovieSearchResults { get; set; } = new();
-    IQueryable<MovieSearchResultItems>? movies { get; set; } = null;
+    //IQueryable<MovieSearchResultItems>? movies { get; set; } = null;
+    public List<MovieSearchResultItems>? SelectedMovies { get; set; }
+    private SfGrid<MovieSearchResultItems>? MoviesGrid;
+    private SfToast? ToastObj;
+    private string toastContent = String.Empty;
+    List<MovieSearchResultItems> OMDBMovies = new();
+
     private int pageNum = 1;
     private int totalPages = 2;
     private int totalResults = 0;
@@ -25,21 +34,28 @@ public partial class Search
         StateHasChanged();
     }
 
-    private async Task NextPage()
+    public async Task PagerClick(PagerItemClickEventArgs args)
     {
-        if (pageNum < totalPages)
-        {
-            pageNum++;
-            await GetMovies();
-        }
+        pageNum = args.CurrentPage;
+        await GetMovies();
+        StateHasChanged();
     }
 
-    private async Task PreviousPage()
+    public async Task GetSelectedRecords(RowSelectEventArgs<MovieSearchResultItems> args)
     {
-        if (pageNum > 1)
+        SelectedMovies = await MoviesGrid.GetSelectedRecordsAsync();
+        //MovieSearchResultItems ItemsSelected = args.Data;
+    }
+
+    public async Task ToolbarClickHandler(ClickEventArgs args)
+    {
+        switch (args.Item.Id)
         {
-            pageNum--;
-            await GetMovies();
+            case "GridMoviesAdd":
+                AddMovie(SelectedMovies.FirstOrDefault());
+                break;
+            default:
+                break;
         }
     }
 
@@ -52,7 +68,10 @@ public partial class Search
             await JS.InvokeVoidAsync("userFeedback", "Post to add user movie favorite failed (api/add-movie)");
         } else
         {
-            await JS.InvokeVoidAsync("userFeedback", $"Added {m.Title} to user favorites!");
+            toastContent = $"Added {m.Title} to user favorites!";
+            StateHasChanged();
+            await Task.Delay(100);
+            await ToastObj.ShowAsync();
         }
     }
 
@@ -63,7 +82,8 @@ public partial class Search
             MovieSearchResult? searchResults = await Http.GetFromJsonAsync<MovieSearchResult>($"{OMDBAPIUrl}{OMDBAPIKey}&s={SearchTitle}&page={pageNum}");
             if (searchResults is not null)
             {
-                movies = searchResults.Search.AsQueryable();
+                //movies = searchResults.Search.AsQueryable();
+                OMDBMovies = searchResults.Search.ToList();
                 if (Double.TryParse(searchResults.totalResults, out double total))
                 {
                     totalResults = (int)total;

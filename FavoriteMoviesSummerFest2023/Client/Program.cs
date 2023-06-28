@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using FavoriteMoviesSummerFest2023.Client.HttpRepository;
+using Syncfusion.Blazor;
+
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MjUyMzg2N0AzMjMwMmUzNDJlMzBSM2lnVXJNMG5KcGg5WUJJeGZhN0tKb213eWNJdmNhN1BxMHRzRlNJb3ZNPQ==");
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -16,5 +19,7 @@ builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().Cre
 builder.Services.AddScoped<IUserHttpRepository, UserHttpRepository>();
 
 builder.Services.AddApiAuthorization();
+
+builder.Services.AddSyncfusionBlazor();
 
 await builder.Build().RunAsync();

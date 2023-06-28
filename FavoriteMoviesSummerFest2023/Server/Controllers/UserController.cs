@@ -4,6 +4,8 @@ using FavoriteMoviesSummerFest2023.Server.Data;
 using FavoriteMoviesSummerFest2023.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace FavoriteMoviesSummerFest2023.Server.Controllers;
 
@@ -74,6 +76,35 @@ public class UserController : Controller
         //await _userManager.UpdateAsync(user);
 
         return Ok();
+    }
+
+    [HttpGet]
+    [Route("api/get-roles")]
+    [Authorize(Roles="Admin")]
+    public async Task<IActionResult> GetUserRoles()
+    {
+        try
+        {
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            if (user is not null)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                return Ok(roles);
+            } else
+            {
+                return NotFound();
+            }
+
+        } catch (Exception ex)
+        {
+            return Problem(
+                // all params are optional
+                detail: "Error while retrieving roles.",    // explanation of issue
+                title: "An error occured",
+                statusCode: StatusCodes.Status500InternalServerError
+                );
+        }
     }
 
     public IActionResult Index()

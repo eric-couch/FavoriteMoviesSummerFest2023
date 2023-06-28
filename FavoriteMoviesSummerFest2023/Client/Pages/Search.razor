@@ -1,5 +1,10 @@
 ﻿@page "/search"
-@using Microsoft.AspNetCore.Components.QuickGrid;
+@using Syncfusion.Blazor.Data
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Notifications
+@using FavoriteMoviesSummerFest2023.Shared
 
 <label>Search</label>
 <div class="container-fluid mb-5">
@@ -12,37 +17,35 @@
         </div>
     </div>
 </div>
-@if (movies is not null)
+@if (OMDBMovies is not null)
 {
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
-            <div class="col-md-6">
-                <QuickGrid Items="@movies">
-                    <PropertyColumn Property="@(m => m.Title)" />
-                    <PropertyColumn Property="@(m => m.Year)" />
-                    <TemplateColumn Title="Add Movie to Favorites">
-                        <button @onclick="@(() => AddMovie(context))">Add Movie</button>
-                    </TemplateColumn>
-                </QuickGrid>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-1">
-                @if (pageNum > 1)
-                {
-                    <button @onclick="PreviousPage">&lt;</button>
-                }
-            </div>
-            <div class="col-md-5">
-                Page: @pageNum
-            </div>
-            <div class="col-md-1">
-                @if (pageNum < totalPages)
-                {
-                    <button @onclick="NextPage">&gt;</button>
-                }
+            <div class="col">
+                <SfPager PageSize="10" TotalItemsCount="@totalResults" ItemClick="PagerClick">
+                </SfPager>
+                <SfGrid @ref="MoviesGrid" ID="GridMovies" TValue="MovieSearchResultItems" DataSource="OMDBMovies"
+                    AllowSorting="true" AllowResizing="true" AllowReordering="true"
+                    Toolbar="@(new List<object>() { new ItemModel() { Text="Add Movie", PrefixIcon="e-add", Id="GridMoviesAdd" } })">
+                    <GridEvents TValue="MovieSearchResultItems"
+                        RowSelected="GetSelectedRecords"
+                        OnToolbarClick="ToolbarClickHandler"></GridEvents>
+                    <GridColumns>
+                        <GridColumn Field="@nameof(MovieSearchResultItems.imdbID)" IsPrimaryKey="true" Visible="false"></GridColumn>
+                        <GridColumn Field="@nameof(MovieSearchResultItems.Title)"></GridColumn>
+                        <GridColumn Field="@nameof(MovieSearchResultItems.Year)"></GridColumn>
+                    </GridColumns>
+                </SfGrid>
             </div>
         </div>
     </div>
 }
 
+<SfToast    @ref="ToastObj" 
+            ShowProgressBar="true"
+            ShowCloseButton="true"
+            Content="@toastContent"
+            CssClass="e-toast-success"
+            Timeout="5000">
+    <ToastPosition X="Center" Y="Top"></ToastPosition>
+</SfToast>
